@@ -1,0 +1,14 @@
+{
+  "name": "landing-performance-analysis",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "test:benchmark": "node scripts/experiment-runner.js"
+  },
+  "devDependencies": {
+    "lighthouse": "^12.0.0"
+  }
+}
