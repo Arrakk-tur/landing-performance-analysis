@@ -6,9 +6,13 @@
     "apps/*"
   ],
   "scripts": {
-    "test:benchmark": "node scripts/experiment-runner.js"
+    "test:benchmark": "node scripts/experiment-runner.js",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "lighthouse": "^12.0.0"
+    "husky": "^9.1.7",
+    "lighthouse": "^12.0.0",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3"
   }
 }
