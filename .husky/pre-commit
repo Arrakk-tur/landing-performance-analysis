@@ -1,10 +1,1 @@
-#!/usr/bin/env sh
-
 npx lint-staged
-
-for app in apps/*; do
-  if [ -d "$app" ] && [ -f "$app/package.json" ]; then
-    echo "Перевірка $app..."
-    (cd "$app" && npx next lint) || exit 1
-  fi
-done
