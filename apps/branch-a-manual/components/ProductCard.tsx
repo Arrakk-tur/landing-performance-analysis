@@ -33,73 +33,64 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <article
-      className={`relative flex flex-col h-full bg-white rounded-lg p-4 shadow-sm border border-gray-100 ${isOutOfStock ? 'opacity-50' : ''}`}
+      className={`group relative flex flex-col h-full bg-white rounded-3xl p-6 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] border border-slate-100 transition-shadow hover:shadow-lg ${isOutOfStock ? 'opacity-50' : ''}`}
     >
-      {isOutOfStock && (
-        <div className="absolute top-2 left-2 z-10 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded">
-          Немає в наявності
-        </div>
-      )}
-
-      <div className="relative w-full aspect-square mb-4">
+      {/* Зображення */}
+      <div className="relative w-full aspect-square mb-6 bg-white rounded-2xl overflow-hidden flex items-center justify-center">
         <Image
           src={product.main_photo_sized_urls.md}
           alt={product.title}
           fill
-          className="object-contain"
-          sizes="(max-width: 768px) 50vw, 25vw"
+          className="object-contain p-4"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           loading="lazy"
         />
       </div>
 
-      <h3 className="text-sm md:text-base font-medium text-gray-900 line-clamp-3 mb-2 flex-grow">
+      {/* Заголовок */}
+      <h3 className="text-lg font-bold text-slate-800 line-clamp-2 mb-4 h-[50px]">
         {isOutOfStock ? (
-          <span className="text-gray-500">{product.title}</span>
+          <span className="text-slate-400">{product.title}</span>
         ) : (
           <a
             href={productUrl}
             onClick={handleClick}
             target="_blank"
             rel="noopener noreferrer"
-            className="before:absolute before:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-maudau-blue focus-visible:ring-offset-4 rounded-sm"
+            className="before:absolute before:inset-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-maudau-emerald focus-visible:ring-offset-2 rounded-sm"
           >
             {product.title}
           </a>
         )}
       </h3>
 
-      <div className="flex items-center gap-1 mb-4" aria-hidden="true">
-        <span className="text-yellow-400 text-sm">★</span>
-        <span className="text-xs text-gray-500">
-          {product.rating} ({product.reviews_count})
-        </span>
-      </div>
-
-      <div className="mt-auto">
-        {oldPrice && (
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm text-gray-500 line-through">
-              {oldPrice} ₴
-            </span>
-            <span className="text-xs font-bold text-white bg-maudau-red px-2 py-0.5 rounded-full">
+      {/* Ціни та Кнопка */}
+      <div className="mt-auto flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-base text-slate-400 line-through">
+            {oldPrice ? `${oldPrice} ₴` : ''}
+          </span>
+          {discount && (
+            <span className="px-2 py-1 bg-maudau-red text-white text-xs font-bold rounded-full">
               -{discount}%
             </span>
-          </div>
-        )}
-        <div className="text-lg font-extrabold text-gray-900">{price} ₴</div>
-      </div>
+          )}
+        </div>
 
-      <button
-        tabIndex={-1}
-        aria-hidden="true"
-        className={`mt-4 w-full py-2.5 rounded text-sm font-extrabold transition-colors ${
-          isOutOfStock
-            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            : 'bg-green-100 text-green-800 group-hover:bg-green-200'
-        }`}
-      >
-        Детальніше
-      </button>
+        <div className="text-3xl font-black text-maudau-dark">{price} ₴</div>
+
+        <button
+          tabIndex={-1}
+          aria-hidden="true"
+          className={`w-full py-4 rounded-2xl text-base font-bold transition-colors ${
+            isOutOfStock
+              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+              : 'bg-maudau-emerald text-white group-hover:bg-emerald-700'
+          }`}
+        >
+          {isOutOfStock ? 'Немає в наявності' : 'Детальніше'}
+        </button>
+      </div>
     </article>
   );
 }
