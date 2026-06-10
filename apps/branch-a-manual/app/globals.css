@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-maudau-blue: #0052f6;
+  --color-maudau-red: #ef4444;
+  --color-maudau-emerald: #059669;
+  --color-maudau-dark: #0f172a;
+  --color-maudau-gray: #f8fafc;
+}
+
+@layer base {
+html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-maudau-dark antialiased;
+  }
+}
