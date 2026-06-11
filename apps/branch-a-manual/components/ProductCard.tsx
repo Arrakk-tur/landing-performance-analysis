@@ -97,7 +97,7 @@ export default function ProductCard({ product, priority = false }: Props) {
           className={`w-full py-4 rounded-2xl text-base font-bold text-center transition-colors ${
             isOutOfStock
               ? 'bg-slate-200 text-slate-600'
-              : 'bg-maudau-emerald text-white group-hover:bg-emerald-700'
+              : 'bg-maudau-emerald text-white group-hover:bg-maudau-emerald-hover'
           }`}
         >
           {isOutOfStock ? 'Повідомити про появу' : 'Детальніше'}

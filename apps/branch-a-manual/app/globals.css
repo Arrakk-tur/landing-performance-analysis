@@ -1,9 +1,10 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-maudau-blue: #0052f6;
-  --color-maudau-red: #ef4444;
-  --color-maudau-emerald: #059669;
+--color-maudau-blue: #0052f6;
+  --color-maudau-red: #dc2626; 
+  --color-maudau-emerald: #047857;
+  --color-maudau-emerald-hover: #064e3b;
   --color-maudau-dark: #0f172a;
   --color-maudau-gray: #f8fafc;
 }
