@@ -6,9 +6,10 @@ import { Product } from '../lib/api';
 
 interface Props {
   product: Product;
+  priority?: boolean;
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, priority = false }: Props) {
   const {
     id,
     title,
@@ -30,10 +31,12 @@ export default function ProductCard({ product }: Props) {
   const handleClick = () => {
     sendGAEvent('event', 'outbound_click', {
       event_category: 'ecommerce',
-      event_label: title,
-      item_id: id,
+      event_label: product.title,
+      item_id: product.id,
     });
   };
+
+  const ariaLabelText = `${product.title}. Акційна ціна: ${price} гривень. ${oldPrice ? `Стара ціна: ${oldPrice} гривень.` : ''}`;
 
   return (
     <article
@@ -43,12 +46,13 @@ export default function ProductCard({ product }: Props) {
     >
       <div className="relative w-full aspect-square mb-6 bg-white rounded-2xl overflow-hidden flex items-center justify-center">
         <Image
-          src={main_photo_sized_urls.md}
-          alt={title}
+          src={product.main_photo_sized_urls.md}
+          alt={product.title}
           fill
           className="object-contain p-4"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
-          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          priority={priority}
+          loading={priority ? undefined : 'lazy'}
         />
       </div>
 
@@ -62,17 +66,17 @@ export default function ProductCard({ product }: Props) {
           onClick={handleClick}
           target="_blank"
           rel="noopener noreferrer"
-          aria-labelledby={`product-title-${id} product-price-${id}`}
+          aria-labelledby={ariaLabelText}
           className="before:absolute before:inset-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-maudau-emerald focus-visible:ring-offset-2 rounded-sm"
         >
-          {title}
+          {product.title}
         </a>
       </h3>
 
       <div className="mt-auto flex flex-col gap-4 pointer-events-none">
         <div className="flex items-center gap-3">
-          <span className="text-base text-slate-400 line-through">
-            {oldPrice ? `${oldPrice} ₴` : ''}
+          <span className="text-base text-slate-500 line-through">
+            {product.oldPrice ? `${product.oldPrice} ₴` : ''}
           </span>
           {discount && (
             <span className="px-2 py-1 bg-maudau-red text-white text-xs font-bold rounded-full">
