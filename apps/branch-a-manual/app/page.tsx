@@ -76,10 +76,10 @@ export default async function PicnicPromoPage() {
             </a>
           </div>
           <div className="flex-1 w-full relative">
-            <div className="relative w-full aspect-[3/2] rounded-[40px] overflow-hidden shadow-2xl">
+            <div className="relative w-full aspect-[3/2] rounded-[40px] overflow-hidden shadow-2xl bg-slate-50">
               <Image
-                src="/sun.png"
-                alt="Весняний розпродаж товарів для пікніку"
+                src="/sun.webp"
+                alt="Відпочинок на природі без зайвих турбот"
                 fill
                 priority
                 className="object-cover"
