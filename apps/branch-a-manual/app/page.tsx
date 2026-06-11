@@ -4,6 +4,16 @@ import ProductCard from '../components/ProductCard';
 import Footer from '@/components/Footer';
 
 export default async function PicnicPromoPage() {
+  // 1. Виконання всіх мережевих запитів паралельно до рендеру JSX
+  const categoriesWithProducts = await Promise.all(
+    promoCategories.map(async (category) => {
+      const productsData = await Promise.all(
+        category.slugs.map((slug) => fetchProduct(slug))
+      );
+      const validProducts = productsData.filter((p) => p !== null);
+      return { ...category, validProducts };
+    })
+  );
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header Sticky */}
@@ -76,10 +86,10 @@ export default async function PicnicPromoPage() {
             </a>
           </div>
           <div className="flex-1 w-full relative">
-            <div className="relative w-full aspect-[3/2] rounded-[40px] overflow-hidden shadow-2xl">
+            <div className="relative w-full aspect-[3/2] rounded-[40px] overflow-hidden shadow-2xl bg-slate-50">
               <Image
-                src="/sun.png"
-                alt="Весняний розпродаж товарів для пікніку"
+                src="/sun.webp"
+                alt="Відпочинок на природі без зайвих турбот"
                 fill
                 priority
                 className="object-cover"
@@ -91,13 +101,8 @@ export default async function PicnicPromoPage() {
 
         {/* Categories Section */}
         <div className="w-full max-w-[1536px] px-4 py-16 lg:py-24 flex flex-col gap-20">
-          {promoCategories.map(async (category) => {
-            const productsData = await Promise.all(
-              category.slugs.map((slug) => fetchProduct(slug))
-            );
-            const validProducts = productsData.filter((p) => p !== null);
-
-            if (validProducts.length === 0) return null;
+          {categoriesWithProducts.map((category, categoryIndex) => {
+            if (category.validProducts.length === 0) return null;
 
             return (
               <section
@@ -116,9 +121,18 @@ export default async function PicnicPromoPage() {
                 </div>
 
                 <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {validProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+                  {category.validProducts.map((product, productIndex) => {
+                    // Картки першої категорії (перший екран) отримують priority для LCP
+                    const isLCP = categoryIndex === 0 && productIndex < 3;
+
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        priority={isLCP}
+                      />
+                    );
+                  })}
                 </div>
               </section>
             );

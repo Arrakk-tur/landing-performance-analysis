@@ -50,14 +50,11 @@ export interface Product {
   id: number;
   title: string;
   slug: string;
-  offer: {
-    price: number;
-    old_price: number | null;
-    availability_status: string;
-  };
+  price: number;
+  oldPrice: number | null;
+  discount: number | null;
+  isOutOfStock: boolean;
   main_photo_sized_urls: { md: string };
-  rating: string;
-  reviews_count: number;
 }
 
 export async function fetchProduct(slug: string): Promise<Product | null> {
@@ -69,14 +66,39 @@ export async function fetchProduct(slug: string): Promise<Product | null> {
           'x-app-name': 'storefront_web',
           'x-app-version': '1.24.13',
         },
+        // ISR кешування (stale-while-revalidate) на 1 годину
         next: { revalidate: 3600 },
       }
     );
 
-    if (!res.ok) return null;
-    return await res.json();
+    if (!res.ok) {
+      console.error(`Помилка API для ${slug}: ${res.status}`);
+      return null;
+    }
+
+    const data = await res.json();
+
+    // Перенесена математика обчислення цін
+    const price = Math.round(data.offer.price / 100);
+    const oldPrice = data.offer.old_price
+      ? Math.round(data.offer.old_price / 100)
+      : null;
+    const discount = oldPrice
+      ? Math.round(100 - (price / oldPrice) * 100)
+      : null;
+
+    return {
+      id: data.id,
+      title: data.title,
+      slug: data.slug,
+      price,
+      oldPrice,
+      discount,
+      isOutOfStock: data.offer.availability_status === 'out_of_stock',
+      main_photo_sized_urls: data.main_photo_sized_urls,
+    };
   } catch (error) {
-    console.error(`Помилка отримання товару ${slug}:`, error);
+    console.error(`Помилка мережі для товару ${slug}:`, error);
     return null;
   }
 }

@@ -188,7 +188,7 @@ export default function Footer() {
                 >
                   0 800 75 83 68
                 </a>
-                <p className="text-slate-500 mt-1">
+                <p className="text-slate-400 mt-1">
                   Безкоштовно з будь-яких номерів
                 </p>
               </div>
@@ -199,7 +199,7 @@ export default function Footer() {
                 >
                   0 44 355 83 68
                 </a>
-                <p className="text-slate-500 mt-1">
+                <p className="text-slate-400 mt-1">
                   Дзвінки згідно тарифів вашого оператора
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-slate-800 flex flex-col items-center text-center text-xs font-medium text-slate-500">
+        <div className="pt-6 border-t border-slate-800 flex flex-col items-center text-center text-xs font-medium text-slate-400">
           <p>
             © Інтернет-магазин MAUDAU 2026. Всі права захищені. Ціни актуальні
             на момент переходу на сайт.
