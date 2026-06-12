@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "test:benchmark": "node scripts/experiment-runner.js",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
