@@ -7,10 +7,13 @@
   ],
   "scripts": {
     "test:benchmark": "node scripts/experiment-runner.js",
+    "axe-internal": "axe",
     "prepare": "husky || true"
   },
   "devDependencies": {
+    "@axe-core/cli": "^4.11.3",
     "@eslint/eslintrc": "^3.3.5",
+    "chromedriver": "^149.0.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.7",
     "husky": "^9.1.7",

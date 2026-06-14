@@ -1,17 +1,15 @@
 // Автоматизований скрипт порівняльного аудиту якості веб-інтерфейсів
 
-const fs = require("fs");
-const path = require("path");
-const execSync = require("child_process").execSync;
+const fs = require('fs');
+const path = require('path');
+const execSync = require('child_process').execSync;
 
 // Конфігурація досліджуваних адрес (URL розгорнутих версій на Vercel)
 const CONFIG = {
-  appId: "conversion-landing-opt",
-  branchA:
-    "[https://manual-version-landing.vercel.app](https://manual-version-landing.vercel.app)", // Гілка А - Ручна версія
-  branchB:
-    "[https://ai-generated-version-landing.vercel.app](https://ai-generated-version-landing.vercel.app)", // Гілка Б - ШІ-генерація
-  outputPath: path.join(__dirname, "experiment_results.json"),
+  appId: 'conversion-landing-opt',
+  branchA: 'https://picnic-promo-manual.vercel.app/', // Гілка А - Ручна версія
+  branchB: 'https://picnic-promo-ai.vercel.app/', // Гілка Б - ШІ-генерація
+  outputPath: path.join(__dirname, 'experiment_results.json'),
   repeats: 3, // Кількість повторень тесту для виведення середнього значення
 };
 
@@ -20,7 +18,7 @@ function runLighthouse(url) {
   console.log(`[Lighthouse] Запуск аудиту для: ${url}`);
 
   // Тимчасовий файл для збереження сирого звіту
-  const tempOutputPath = path.join(__dirname, "temp_lh.json");
+  const tempOutputPath = path.join(__dirname, 'temp_lh.json');
 
   // Команда запуску з суворим обмеженням CPU та мережі для мобільних пристроїв
   const cmd =
@@ -33,8 +31,8 @@ function runLighthouse(url) {
     `--only-categories=performance,accessibility,seo`;
 
   try {
-    execSync(cmd, { stdio: "ignore" });
-    const rawData = fs.readFileSync(tempOutputPath, "utf8");
+    execSync(cmd, { stdio: 'ignore' });
+    const rawData = fs.readFileSync(tempOutputPath, 'utf8');
     const parsed = JSON.parse(rawData);
 
     // Видаляємо тимчасовий файл
@@ -45,14 +43,14 @@ function runLighthouse(url) {
       performance: Math.round(parsed.categories.performance.score * 100),
       accessibility: Math.round(parsed.categories.accessibility.score * 100),
       seo: Math.round(parsed.categories.seo.score * 100),
-      fcp: parsed.audits["first-contentful-paint"].numericValue, // у мілісекундах
-      lcp: parsed.audits["largest-contentful-paint"].numericValue, // у мілісекундах
-      cls: parsed.audits["cumulative-layout-shift"].numericValue, // коефіцієнт зсуву
+      fcp: parsed.audits['first-contentful-paint'].numericValue, // у мілісекундах
+      lcp: parsed.audits['largest-contentful-paint'].numericValue, // у мілісекундах
+      cls: parsed.audits['cumulative-layout-shift'].numericValue, // коефіцієнт зсуву
     };
   } catch (error) {
     console.error(
       `Помилка під час виконання Lighthouse для ${url}:`,
-      error.message,
+      error.message
     );
     return null;
   }
@@ -62,19 +60,37 @@ function runLighthouse(url) {
 function runAxe(url) {
   console.log(`[Axe DevTools] Глибокий аналіз DOM для: ${url}`);
 
-  const cmd = `npx axe ${url} --json`;
+  // Використовуємо тільки ім'я файлу (Axe збереже його в корені проекту)
+  const tempFileName = `temp_axe_${Date.now()}.json`;
+  const tempFullPath = path.join(process.cwd(), tempFileName);
+
+  const cmd = `npx axe ${url} --save "${tempFileName}"`;
 
   try {
-    const rawResult = execSync(cmd, {
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "ignore"],
-    });
-    const parsed = JSON.parse(rawResult);
+    try {
+      execSync(cmd, {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+    } catch (execError) {
+      // Axe повертає exit code 1, якщо знайдено порушення.
+      // Перевіряємо, чи з'явився файл результатів.
+      if (!fs.existsSync(tempFullPath)) {
+        throw execError;
+      }
+    }
 
-    // Axe повертає масив результатів для кожної сторінки
+    // Читаємо файл з кореневої директорії
+    const rawData = fs.readFileSync(tempFullPath, 'utf8');
+    const parsed = JSON.parse(rawData);
+
+    // Видаляємо тимчасовий файл
+    if (fs.existsSync(tempFullPath)) {
+      fs.unlinkSync(tempFullPath);
+    }
+
     const violations = parsed[0]?.violations || [];
 
-    // Класифікуємо помилки за рівнями критичності
     let critical = 0;
     let serious = 0;
     let moderate = 0;
@@ -82,10 +98,10 @@ function runAxe(url) {
 
     violations.forEach((v) => {
       const count = v.nodes.length;
-      if (v.impact === "critical") critical += count;
-      else if (v.impact === "serious") serious += count;
-      else if (v.impact === "moderate") moderate += count;
-      else if (v.impact === "minor") minor += count;
+      if (v.impact === 'critical') critical += count;
+      else if (v.impact === 'serious') serious += count;
+      else if (v.impact === 'moderate') moderate += count;
+      else if (v.impact === 'minor') minor += count;
     });
 
     return {
@@ -97,13 +113,19 @@ function runAxe(url) {
     };
   } catch (error) {
     console.error(`Помилка під час виконання Axe для ${url}:`, error.message);
+    if (error.stderr) {
+      console.error(`Деталі (stderr):\n`, error.stderr);
+    }
+    if (fs.existsSync(tempFullPath)) {
+      fs.unlinkSync(tempFullPath);
+    }
     return null;
   }
 }
 
 // Основний керуючий алгоритм експерименту
 async function main() {
-  console.log("=== ЗАПУСК АВТОМАТИЗОВАНОГО ПОРІВНЯЛЬНОГО ЕКСПЕРИМЕНТУ ===");
+  console.log('=== ЗАПУСК АВТОМАТИЗОВАНОГО ПОРІВНЯЛЬНОГО ЕКСПЕРИМЕНТУ ===');
 
   const results = {
     metadata: {
@@ -126,7 +148,7 @@ async function main() {
   }
 
   // 2. Одноразовий глибокий аналіз DOM структури через Axe CLI
-  console.log("\n--- Запуск статичного аналізу доступності коду ---");
+  console.log('\n--- Запуск статичного аналізу доступності коду ---');
   results.branchA.axe = runAxe(CONFIG.branchA);
   results.branchB.axe = runAxe(CONFIG.branchB);
 
@@ -181,27 +203,27 @@ async function main() {
   fs.writeFileSync(
     CONFIG.outputPath,
     JSON.stringify(finalReport, null, 2),
-    "utf8",
+    'utf8'
   );
   console.log(
-    `\n[Успіх] Експеримент завершено. Звіт збережено до: ${CONFIG.outputPath}`,
+    `\n[Успіх] Експеримент завершено. Звіт збережено до: ${CONFIG.outputPath}`
   );
 
   // Виведення консольного резюме експерименту
-  console.log("\n================ РЕЗЮМЕ ЕКСПЕРИМЕНТУ ================");
+  console.log('\n================ РЕЗЮМЕ ЕКСПЕРИМЕНТУ ================');
   console.log(`Метрика       | Гілка А (Ручна) | Гілка Б (ШІ v0) | Дельта`);
   console.log(`----------------------------------------------------------`);
   console.log(
-    `Performance   | ${avgA.performance} балів       | ${avgB.performance} балів       | ${delta.performance >= 0 ? "+" : ""}${delta.performance}`,
+    `Performance   | ${avgA.performance} балів       | ${avgB.performance} балів       | ${delta.performance >= 0 ? '+' : ''}${delta.performance}`
   );
   console.log(
-    `Accessibility | ${avgA.accessibility} балів       | ${avgB.accessibility} балів       | ${delta.accessibility >= 0 ? "+" : ""}${delta.accessibility}`,
+    `Accessibility | ${avgA.accessibility} балів       | ${avgB.accessibility} балів       | ${delta.accessibility >= 0 ? '+' : ''}${delta.accessibility}`
   );
   console.log(
-    `SEO           | ${avgA.seo} балів       | ${avgB.seo} балів       | ${delta.seo >= 0 ? "+" : ""}${delta.seo}`,
+    `SEO           | ${avgA.seo} балів       | ${avgB.seo} балів       | ${delta.seo >= 0 ? '+' : ''}${delta.seo}`
   );
   console.log(
-    `LCP (Швидкість)| ${avgA.lcp} ms       | ${avgB.lcp} ms       | ${delta.lcp_ms_reduction} ms (зменшення)`,
+    `LCP (Швидкість)| ${avgA.lcp} ms       | ${avgB.lcp} ms       | ${delta.lcp_ms_reduction} ms (зменшення)`
   );
   console.log(`==========================================================`);
 }
