@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "timestamp": "2026-06-14T21:22:40.466Z",
+    "appId": "conversion-landing-opt",
+    "repeats": 3
+  },
+  "averages": {
+    "branchA": {
+      "performance": 100,
+      "accessibility": 100,
+      "seo": 100,
+      "fcp": 1065.56,
+      "lcp": 1079.42,
+      "cls": 0
+    },
+    "branchB": {
+      "performance": 100,
+      "accessibility": 96,
+      "seo": 100,
+      "fcp": 1380.33,
+      "lcp": 1383.87,
+      "cls": 0.0079
+    }
+  },
+  "axeAnalysis": {
+    "branchA": {
+      "totalViolations": 0,
+      "critical": 0,
+      "serious": 0,
+      "moderate": 0,
+      "minor": 0
+    },
+    "branchB": {
+      "totalViolations": 0,
+      "critical": 0,
+      "serious": 0,
+      "moderate": 0,
+      "minor": 0
+    }
+  },
+  "calculatedDeltas": {
+    "performance": 0,
+    "accessibility": -4,
+    "seo": 0,
+    "lcp_ms_reduction": -304.449999999999818
+  }
+}
